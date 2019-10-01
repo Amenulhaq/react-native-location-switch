@@ -1,4 +1,3 @@
-
 #import "RNReactNativeLocationSwitch.h"
 #import "UIKit/UIKit.h"
 #import <Foundation/NSURL.h>
@@ -20,12 +19,19 @@ RCT_REMAP_METHOD(enableLocationService,
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
 
     if (![CLLocationManager locationServicesEnabled]) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"App-Prefs:root=Privacy&path=LOCATION"] options:@{}
+        /*
+        using "App-Prefs:root=Privacy&path=LOCATION" results in app store rejection under
+        Guideline 2.5.1 - Performance - Software Requirements
+        The use of non-public APIs is not permitted on the App Store
+        because it can lead to a poor user experience should these APIs change.
+        */
+        // show location settings
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{}
                                  completionHandler:^(BOOL success) {}];
 
     } else if (status == kCLAuthorizationStatusDenied) {
         NSLog(@"Location Services Disabled");
-        
+
         // show location settings
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{}
                                  completionHandler:^(BOOL success) {}];
@@ -42,7 +48,7 @@ RCT_REMAP_METHOD(isLocationEnabled,
                  onLocationDisable:(RCTResponseSenderBlock)errorCallback)
 {
     CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
+
     if (![CLLocationManager locationServicesEnabled] || status == kCLAuthorizationStatusDenied) {
         NSLog(@"Location Services Disabled");
         errorCallback(@[[NSNull null]]);
